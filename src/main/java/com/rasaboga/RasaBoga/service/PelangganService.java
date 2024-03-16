@@ -6,7 +6,7 @@ import com.rasaboga.RasaBoga.model.response.PelangganResponse;
 import java.util.List;
 
 public interface PelangganService {
-    String create(Pelanggan pelanggan);
+    Pelanggan create(Pelanggan pelanggan);
 
     List<PelangganResponse> getAll();
     Pelanggan update(Pelanggan pelanggan);

@@ -19,7 +19,7 @@ public class PelangganServiceImpl implements PelangganService {
     private final PelangganRepository pelangganRepository;
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String create(Pelanggan pelanggan) {
+    public Pelanggan create(Pelanggan pelanggan) {
         Pelanggan pelanggan1 = Pelanggan.builder()
                 .email_pelanggan(pelanggan.getEmail_pelanggan())
                 .password_pelanggan(pelanggan.getPassword_pelanggan())
@@ -28,7 +28,7 @@ public class PelangganServiceImpl implements PelangganService {
                 .build();
 
         Pelanggan save = pelangganRepository.save(pelanggan1);
-        return "data created";
+        return save;
     }
 
     @Override

@@ -13,12 +13,13 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@CrossOrigin
 public class PelangganController {
     private final PelangganService pelangganService;
 
     @PostMapping(path = "/pelanggan")
     public ResponseEntity<?> create(@RequestBody Pelanggan pelanggan){
-        String pelanggan1 = pelangganService.create(pelanggan);
+        Pelanggan pelanggan1 = pelangganService.create(pelanggan);
         return ResponseEntity.status(HttpStatus.CREATED).body(pelanggan1);
     }
 
