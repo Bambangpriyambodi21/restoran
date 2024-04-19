@@ -1,14 +1,17 @@
 package com.rasaboga.RasaBoga.controller;
 
 import com.rasaboga.RasaBoga.entity.Menu;
+import com.rasaboga.RasaBoga.model.request.SearchMenuRequest;
 import com.rasaboga.RasaBoga.model.response.MenuResponse;
 import com.rasaboga.RasaBoga.service.MenuService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -29,8 +32,15 @@ public class MenuController {
     }
 
     @GetMapping("/menu")
-    public ResponseEntity<?> getAll(){
-        List<MenuResponse> all = menuService.findAll();
+    public ResponseEntity<?> getAll(@RequestParam(required = false) String menu,
+                                    @RequestParam(required = false, defaultValue = "0") Integer halaman,
+                                    @RequestParam(required = false, defaultValue = "10") Integer ukuran){
+        SearchMenuRequest searchMenuRequest = SearchMenuRequest.builder()
+                .menu(menu)
+                .halaman(halaman)
+                .ukuran(ukuran)
+                .build();
+        ArrayList<MenuResponse> all = menuService.findAll(searchMenuRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(all);
     }
 

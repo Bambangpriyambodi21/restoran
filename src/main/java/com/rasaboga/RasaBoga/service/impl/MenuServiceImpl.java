@@ -1,12 +1,19 @@
 package com.rasaboga.RasaBoga.service.impl;
 
 import com.rasaboga.RasaBoga.entity.Menu;
+import com.rasaboga.RasaBoga.model.request.SearchMenuRequest;
 import com.rasaboga.RasaBoga.model.response.MenuResponse;
 import com.rasaboga.RasaBoga.repository.MenuRepository;
 import com.rasaboga.RasaBoga.service.MenuService;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,18 +52,27 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public List<MenuResponse> findAll() {
-        List<Menu> all = menuRepository.findAll();
-        List<MenuResponse> menuResponses = all.stream()
-                .map(item -> {
-                    Menu menu = findId(item.getId_menu());
-                    return MenuResponse.builder()
-                            .menu(menu.getMenu())
-                            .stok(menu.getStok())
-                            .harga(menu.getHarga())
-                            .build();
-                }).collect(Collectors.toList());
-        return menuResponses;
+    public ArrayList<MenuResponse> findAll(SearchMenuRequest menu) {
+        PageRequest pageable = PageRequest.of(menu.getHalaman(), menu.getUkuran());
+        Specification<Menu> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (menu.getMenu()!= null){
+                Predicate namePredicate = criteriaBuilder.like(root.get("menu"), "%"+menu.getMenu()+"%");
+                predicates.add(namePredicate);
+            }
+
+            return query.where(predicates.toArray(new Predicate[]{})).getRestriction();
+        };
+        Page<Menu> all = menuRepository.findAll(spec, pageable);
+        List<MenuResponse> menuResponses = all.getContent().stream()
+                .map(item -> MenuResponse.builder()
+                        .menu(item.getMenu())
+                        .stok(item.getStok())
+                        .harga(item.getHarga())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new ArrayList<>(menuResponses);
     }
 
     @Override

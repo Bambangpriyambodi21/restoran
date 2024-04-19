@@ -1,6 +1,7 @@
 package com.rasaboga.RasaBoga.controller;
 
 import com.rasaboga.RasaBoga.entity.Pelanggan;
+import com.rasaboga.RasaBoga.model.request.SearchPelangganRequest;
 import com.rasaboga.RasaBoga.model.response.PagingResponse;
 import com.rasaboga.RasaBoga.model.response.PelangganResponse;
 import com.rasaboga.RasaBoga.model.response.WebResponse;
@@ -31,8 +32,15 @@ public class PelangganController {
     }
 
     @GetMapping(path = "/pelanggan")
-    public ResponseEntity<?> getAll(){
-        List<PelangganResponse> all = pelangganService.getAll();
+    public ResponseEntity<?> getAll(@RequestParam(required = false, defaultValue = "0") Integer halaman,
+                                    @RequestParam(required = false, defaultValue = "10") Integer ukuran,
+                                    @RequestParam(required = false) String namaPelanggan){
+        SearchPelangganRequest searchPelangganRequest = SearchPelangganRequest.builder()
+                .pelanggan(namaPelanggan)
+                .halaman(halaman)
+                .ukuran(ukuran)
+                .build();
+        List<PelangganResponse> all = pelangganService.getAll(searchPelangganRequest);
         WebResponse<Object> build = WebResponse.builder()
                 .message("Get All Data")
                 .status(HttpStatus.OK.getReasonPhrase())

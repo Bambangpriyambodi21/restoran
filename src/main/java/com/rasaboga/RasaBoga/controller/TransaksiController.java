@@ -29,7 +29,9 @@ public class TransaksiController {
     }
 
     @GetMapping("/transaksi")
-    public ResponseEntity<?> getall(){
+    public ResponseEntity<?> getall(@RequestParam(required = false, defaultValue = "0") Integer halaman,
+                                    @RequestParam(required = false, defaultValue = "10") Integer ukuran,
+                                    @RequestParam(required = false) String id){
         List<TransaksiResponse> all = transaksiService.getAll();
         return ResponseEntity.status(HttpStatus.CREATED).body(all);
     }
