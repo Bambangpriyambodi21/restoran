@@ -1,5 +1,6 @@
 package com.rasaboga.RasaBoga.controller;
 
+import com.rasaboga.RasaBoga.model.request.SearchTransaksiRequest;
 import com.rasaboga.RasaBoga.model.request.TransaksiRequest;
 import com.rasaboga.RasaBoga.model.response.TransaksiResponse;
 import com.rasaboga.RasaBoga.service.TransaksiService;
@@ -32,7 +33,12 @@ public class TransaksiController {
     public ResponseEntity<?> getall(@RequestParam(required = false, defaultValue = "0") Integer halaman,
                                     @RequestParam(required = false, defaultValue = "10") Integer ukuran,
                                     @RequestParam(required = false) String id){
-        List<TransaksiResponse> all = transaksiService.getAll();
+        SearchTransaksiRequest searchTransaksiRequest = SearchTransaksiRequest.builder()
+                .id(id)
+                .halaman(halaman)
+                .ukuran(ukuran)
+                .build();
+        List<TransaksiResponse> all = transaksiService.getAll(searchTransaksiRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(all);
     }
 

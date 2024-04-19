@@ -3,18 +3,24 @@ package com.rasaboga.RasaBoga.service.impl;
 import com.rasaboga.RasaBoga.entity.Menu;
 import com.rasaboga.RasaBoga.entity.Pelanggan;
 import com.rasaboga.RasaBoga.entity.Transaksi;
+import com.rasaboga.RasaBoga.model.request.SearchTransaksiRequest;
 import com.rasaboga.RasaBoga.model.request.TransaksiRequest;
 import com.rasaboga.RasaBoga.model.response.TransaksiResponse;
 import com.rasaboga.RasaBoga.repository.TransaksiRepository;
 import com.rasaboga.RasaBoga.service.MenuService;
 import com.rasaboga.RasaBoga.service.PelangganService;
 import com.rasaboga.RasaBoga.service.TransaksiService;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -85,22 +91,28 @@ public class TransaksiServiceImpl implements TransaksiService {
     }
 
     @Override
-    public List<TransaksiResponse> getAll() {
-        List<Transaksi> all = transaksiRepository.findAll();
-        List<TransaksiResponse> transaksiResponses = all.stream()
-                .map(item -> {
-                    Menu menu = menuService.findId(item.getMenu().getId_menu());
-                    Pelanggan pelanggan = pelangganService.findId(item.getPelanggan().getId_pelanggan());
-                    return TransaksiResponse.builder()
-                            .id(item.getId())
-                            .menu(menu.getMenu())
-                            .pelanggan(pelanggan.getNama_pelanggan())
-                            .quantity(item.getQuantity())
-                            .bill(item.getBill())
-                            .build();
-                })
-                .collect(Collectors.toList());
+    public List<TransaksiResponse> getAll(SearchTransaksiRequest searchTransaksiRequest) {
+        PageRequest pageRequest = PageRequest.of(searchTransaksiRequest.getHalaman(), searchTransaksiRequest.getUkuran());
+        Specification<Transaksi> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+              if (searchTransaksiRequest.getId()!=null){
+                  Predicate predicate = criteriaBuilder.like(root.get("id"),"%"+searchTransaksiRequest.getId()+"%");
+                  predicates.add(predicate);
+              }
 
+              return query.where(predicates.toArray(new Predicate[]{})).getRestriction();
+        };
+
+        Page<Transaksi> all = transaksiRepository.findAll(specification, pageRequest);
+        List<TransaksiResponse> transaksiResponses = all.getContent().stream()
+                .map(item -> TransaksiResponse.builder()
+                        .id(item.getId())
+                        .bill(item.getBill())
+                        .pelanggan(item.getPelanggan().getNama_pelanggan())
+                        .menu(item.getMenu().getMenu())
+                        .quantity(item.getQuantity())
+                        .build())
+                .collect(Collectors.toList());
         return transaksiResponses;
     }
 
