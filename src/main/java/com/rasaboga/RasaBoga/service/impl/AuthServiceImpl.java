@@ -28,13 +28,15 @@ public class AuthServiceImpl implements AuthService {
         if (byEmail.isPresent()) return;
 
         Role orSave = roleService.getOrSave(ERole.ROLE_SUPER_ADMIN);
+        Role orSaveAdmin = roleService.getOrSave(ERole.ROLE_SUPER_ADMIN);
+        Role orSaveCustomer = roleService.getOrSave(ERole.ROLE_SUPER_ADMIN);
 
         String password = passwordEncoder.encode("password");
 
         UserCredential userCredential = UserCredential.builder()
                 .email("superadmin@gmail.com")
                 .password(password)
-                .roles(List.of(orSave))
+                .roles(List.of(orSave, orSaveAdmin, orSaveCustomer))
                 .build();
         userCredentialRepository.saveAndFlush(userCredential);
     }
