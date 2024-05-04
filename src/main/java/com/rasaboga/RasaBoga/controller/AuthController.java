@@ -2,6 +2,7 @@ package com.rasaboga.RasaBoga.controller;
 
 import com.rasaboga.RasaBoga.entity.UserCredential;
 import com.rasaboga.RasaBoga.model.request.AuthRequest;
+import com.rasaboga.RasaBoga.model.response.UserResponse;
 import com.rasaboga.RasaBoga.model.response.WebResponse;
 import com.rasaboga.RasaBoga.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class AuthController {
 
     @PostMapping(path = "/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request){
-        UserCredential register = authService.register(request);
+        UserResponse register = authService.register(request);
         WebResponse webResponse = WebResponse.builder()
                 .status(HttpStatus.CREATED.getReasonPhrase())
                 .message("successfully create new user")
@@ -31,7 +32,7 @@ public class AuthController {
 
     @PostMapping(path = "/register/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody AuthRequest request){
-        UserCredential register = authService.registerAdmin(request);
+        UserResponse register = authService.registerAdmin(request);
         WebResponse webResponse = WebResponse.builder()
                 .status(HttpStatus.CREATED.getReasonPhrase())
                 .message("successfully create new user")

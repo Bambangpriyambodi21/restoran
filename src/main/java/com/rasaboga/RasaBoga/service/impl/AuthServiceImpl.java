@@ -4,6 +4,7 @@ import com.rasaboga.RasaBoga.constant.ERole;
 import com.rasaboga.RasaBoga.entity.Role;
 import com.rasaboga.RasaBoga.entity.UserCredential;
 import com.rasaboga.RasaBoga.model.request.AuthRequest;
+import com.rasaboga.RasaBoga.model.response.UserResponse;
 import com.rasaboga.RasaBoga.repository.UserCredentialRepository;
 import com.rasaboga.RasaBoga.service.AuthService;
 import com.rasaboga.RasaBoga.service.RoleService;
@@ -41,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
         userCredentialRepository.saveAndFlush(userCredential);
     }
     @Override
-    public UserCredential register(AuthRequest request) {
+    public UserResponse register(AuthRequest request) {
         Role orSave = roleService.getOrSave(ERole.ROLE_CUSTOMER);
 
         String password = passwordEncoder.encode(request.getPassword());
@@ -52,11 +53,11 @@ public class AuthServiceImpl implements AuthService {
                 .roles(List.of(orSave))
                 .build();
         userCredentialRepository.saveAndFlush(userCredential);
-        return userCredential;
+        return toUserResponse(userCredential);
     }
 
     @Override
-    public UserCredential registerAdmin(AuthRequest request) {
+    public UserResponse registerAdmin(AuthRequest request) {
         Role orSave = roleService.getOrSave(ERole.ROLE_CUSTOMER);
         Role orSaveAdmin = roleService.getOrSave(ERole.ROLE_ADMIN);
 
@@ -68,6 +69,14 @@ public class AuthServiceImpl implements AuthService {
                 .roles(List.of(orSave, orSaveAdmin))
                 .build();
         userCredentialRepository.saveAndFlush(userCredential);
-        return userCredential;
+        return toUserResponse(userCredential);
+    }
+
+    private static UserResponse toUserResponse(UserCredential userCredential) {
+        List<String> list = userCredential.getRoles().stream().map(role -> role.getRole().name()).toList();
+        return UserResponse.builder()
+                .email(userCredential.getEmail())
+                .roles(list)
+                .build();
     }
 }
