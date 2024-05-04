@@ -42,7 +42,13 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity<?> login(){
-        return null;
+    public ResponseEntity<?> login(@RequestBody AuthRequest request){
+        String login = authService.login(request);
+        WebResponse webResponse = WebResponse.builder()
+                .status(HttpStatus.CREATED.getReasonPhrase())
+                .message("successfully create new user")
+                .data(login)
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(webResponse);
     }
 }

@@ -16,7 +16,7 @@ public class JwtUtils {
 
     @Value("${app.restoran.jwt-secret}")
     private String secretKey;
-    @Value("${app.restoran.jwt-expiration")
+    @Value("${app.restoran.jwt-expiration}")
     private long expirationInSecond;
     @Value("${app.restoran.app-name}")
     private String appName;

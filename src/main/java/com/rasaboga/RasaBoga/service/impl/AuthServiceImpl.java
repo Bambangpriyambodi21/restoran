@@ -6,12 +6,15 @@ import com.rasaboga.RasaBoga.entity.UserCredential;
 import com.rasaboga.RasaBoga.model.request.AuthRequest;
 import com.rasaboga.RasaBoga.model.response.UserResponse;
 import com.rasaboga.RasaBoga.repository.UserCredentialRepository;
+import com.rasaboga.RasaBoga.security.JwtUtils;
 import com.rasaboga.RasaBoga.service.AuthService;
 import com.rasaboga.RasaBoga.service.RoleService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserCredentialRepository userCredentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final JwtUtils jwtUtils;
 
     @PostConstruct
     public void initSuperAdmin(){
@@ -41,6 +45,14 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         userCredentialRepository.saveAndFlush(userCredential);
     }
+
+    @Override
+    public String login(AuthRequest request) {
+        Optional<UserCredential> byEmail = userCredentialRepository.findByEmail(request.getEmail());
+        if (byEmail.isEmpty()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "unauthorized");
+        return jwtUtils.generationToken(byEmail.get());
+    }
+
     @Override
     public UserResponse register(AuthRequest request) {
         Role orSave = roleService.getOrSave(ERole.ROLE_CUSTOMER);
