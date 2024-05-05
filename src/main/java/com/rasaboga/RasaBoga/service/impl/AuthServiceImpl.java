@@ -12,6 +12,10 @@ import com.rasaboga.RasaBoga.service.RoleService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
 
     @PostConstruct
     public void initSuperAdmin(){
@@ -48,9 +53,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String login(AuthRequest request) {
-        Optional<UserCredential> byEmail = userCredentialRepository.findByEmail(request.getEmail());
-        if (byEmail.isEmpty()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "unauthorized");
-        return jwtUtils.generationToken(byEmail.get());
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        UserCredential principal = (UserCredential) authenticate.getPrincipal();
+        return jwtUtils.generationToken(principal);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class AuthController {
     @PostMapping(path = "/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request){
         UserResponse register = authService.register(request);
-        WebResponse webResponse = WebResponse.builder()
+        WebResponse<UserResponse> webResponse = WebResponse.<UserResponse>builder()
                 .status(HttpStatus.CREATED.getReasonPhrase())
                 .message("successfully create new user")
                 .data(register)
@@ -33,7 +33,7 @@ public class AuthController {
     @PostMapping(path = "/register/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody AuthRequest request){
         UserResponse register = authService.registerAdmin(request);
-        WebResponse webResponse = WebResponse.builder()
+        WebResponse<UserResponse> webResponse = WebResponse.<UserResponse>builder()
                 .status(HttpStatus.CREATED.getReasonPhrase())
                 .message("successfully create new user")
                 .data(register)
@@ -44,11 +44,11 @@ public class AuthController {
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request){
         String login = authService.login(request);
-        WebResponse webResponse = WebResponse.builder()
+        WebResponse<String> webResponse = WebResponse.<String>builder()
                 .status(HttpStatus.CREATED.getReasonPhrase())
-                .message("successfully create new user")
+                .message("successfully login")
                 .data(login)
                 .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(webResponse);
+        return ResponseEntity.ok(webResponse);
     }
 }
